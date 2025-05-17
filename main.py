@@ -62,6 +62,7 @@ if __name__ == "__main__":
         time.sleep(0.5)
 
         # Enter start and end dates
+        logging.info(f"Set dates. Start: {START_DATE}, end: {END_DATE}")
         start_date_cell = driver.find_element(By.CSS_SELECTOR, f"[data-date='{START_DATE}']")
         end_date_cell = driver.find_element(By.CSS_SELECTOR, f"[data-date='{END_DATE}']")
 
@@ -82,13 +83,15 @@ if __name__ == "__main__":
         amount_val = amount_people_section.find_element(By.CLASS_NAME, 'e32aa465fd')
 
         # Enter the amount of people
-        logging.info(f"Current amount of people: {amount_val.text}; desired: {AMOUNT_PEOPLE}")
         while amount_val.text != f"{AMOUNT_PEOPLE}":
             amount = int(amount_val.text)
+            logging.info(f"Current amount of people: {amount_val.text}; desired: {AMOUNT_PEOPLE}")
             if amount < AMOUNT_PEOPLE:
+                logging.info("Press plus button")
                 amount_plus_button.click()
                 time.sleep(0.5)
             elif amount > AMOUNT_PEOPLE:
+                logging.info("Press minus button")
                 amount_minus_button.click()
                 time.sleep(0.5)
             else:
@@ -107,10 +110,14 @@ if __name__ == "__main__":
         hotel_config = top_suggestion.find_element(By.CSS_SELECTOR, "[data-testid='property-card-unit-configuration']")
         hotel_address = top_suggestion.find_element(By.CSS_SELECTOR, "[data-testid='address']")
 
-        logging.info(f"Property found. Name '{hotel_title.text}'; price {hotel_price.text}; config: '{hotel_config.text}', address '{hotel_address.text}'")
+        logging.info(f"Property found. "
+                     f"Name '{hotel_title.text}'; "
+                     f"price {hotel_price.text}; "
+                     f"config: '{hotel_config.text}', "
+                     f"address '{hotel_address.text}'")
 
         #Send an SMS
-        sms_message = f"{hotel_address.text}\n{START_DATE} - {END_DATE}\n{hotel_title.text}: {hotel_price.text} Euro\n{hotel_config.text}"
+        sms_message = f"{hotel_address.text}\n{START_DATE} - {END_DATE}\n{hotel_title.text}: {hotel_price.text}Euro\n{hotel_config.text}"
         response = sns.publish(PhoneNumber=PHONE_NUMBER, Message=sms_message)
         logging.info(f"Message sent. Message ID: {response['MessageId']}")
     except (BotoCoreError, ClientError) as error:
